@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Login — AI Study Planner{% endblock %}
+{% block content %}
+<div class="card auth-card">
+    <h2>Welcome back</h2>
+    <form method="post" data-validate novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group">
+                <label class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<div class="form-error">{{ field.errors|striptags }}</div>{% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
+    </form>
+    <p class="mt-2 text-muted">
+        <a href="{% url 'accounts:password_reset' %}">Forgot password?</a> ·
+        No account? <a href="{% url 'accounts:register' %}">Register</a>
+    </p>
+</div>
+{% endblock %}

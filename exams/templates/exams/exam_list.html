@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Exams{% endblock %}
+{% block content %}
+<div class="flex-between mb-2">
+    <h1>Exams</h1>
+    <a href="{% url 'exams:add' %}" class="btn btn-primary">+ Add Exam</a>
+</div>
+<div class="card">
+    <table>
+        <thead><tr><th>Exam</th><th>Subject</th><th>Date</th><th>Days Left</th><th>Preparation</th><th>Actions</th></tr></thead>
+        <tbody>
+        {% for exam in exams %}
+            <tr>
+                <td><strong>{{ exam.exam_name }}</strong></td>
+                <td>{{ exam.subject.name }}</td>
+                <td>{{ exam.exam_date }}</td>
+                <td>
+                    <span class="pill {% if exam.days_remaining <= 3 %}pill-danger{% elif exam.days_remaining <= 7 %}pill-warning{% else %}pill-info{% endif %}">
+                        {{ exam.days_remaining }} days
+                    </span>
+                </td>
+                <td>{{ exam.get_preparation_level_display }}</td>
+                <td>
+                    <a href="{% url 'exams:edit' exam.pk %}" class="btn btn-sm btn-outline">Edit</a>
+                    <a href="{% url 'exams:delete' exam.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6" class="empty-state">No exams yet. <a href="{% url 'exams:add' %}">Add one</a>.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include "partials/pagination.html" %}
+{% endblock %}

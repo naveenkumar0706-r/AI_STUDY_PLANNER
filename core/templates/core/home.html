@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}AI Study Planner — Study Smarter, Not Harder{% endblock %}
+{% block content %}
+<section class="hero">
+    <h1>Study Smarter with AI-Powered Planning</h1>
+    <p>Organize your subjects, track tasks, and let our AI recommendation engine build your daily study schedule — automatically prioritizing what matters most.</p>
+    <a href="{% url 'accounts:register' %}" class="btn btn-primary">Get Started Free</a>
+    <a href="{% url 'core:about' %}" class="btn btn-outline" style="margin-left:10px; background:#fff;">Learn More</a>
+</section>
+
+<section class="features-section">
+    <h2 style="text-align:center;">Everything you need to stay on track</h2>
+    <div class="features-grid">
+        <div class="card">
+            <div class="stat-icon">🤖</div>
+            <h3>AI Study Plans</h3>
+            <p class="text-muted">Get a daily schedule generated from your priorities, difficulty levels, and upcoming exams.</p>
+        </div>
+        <div class="card">
+            <div class="stat-icon">📊</div>
+            <h3>Progress Tracking</h3>
+            <p class="text-muted">Visual dashboards show your daily, weekly, and subject-wise progress at a glance.</p>
+        </div>
+        <div class="card">
+            <div class="stat-icon">🎯</div>
+            <h3>Goals & Exams</h3>
+            <p class="text-muted">Set goals, track exams, and let the planner automatically boost study time as exams approach.</p>
+        </div>
+        <div class="card">
+            <div class="stat-icon">⏱️</div>
+            <h3>Task Management</h3>
+            <p class="text-muted">Plan tasks with start/end times, estimated hours, and status tracking.</p>
+        </div>
+        <div class="card">
+            <div class="stat-icon">💡</div>
+            <h3>Smart Recommendations</h3>
+            <p class="text-muted">Weak subject alerts, revision schedules, and daily motivation to keep you moving.</p>
+        </div>
+        <div class="card">
+            <div class="stat-icon">🌙</div>
+            <h3>Dark Mode</h3>
+            <p class="text-muted">A clean, responsive interface that's easy on the eyes, day or night.</p>
+        </div>
+    </div>
+</section>
+{% endblock %}

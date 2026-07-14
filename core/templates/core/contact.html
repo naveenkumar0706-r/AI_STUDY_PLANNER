@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Contact — AI Study Planner{% endblock %}
+{% block content %}
+<section class="features-section" style="max-width:600px;">
+    <h1>Contact Us</h1>
+    <p class="text-muted">Have a question or feedback? Send us a message.</p>
+    <form method="post" data-validate class="card mt-2">
+        {% csrf_token %}
+        <div class="form-group">
+            <label class="form-label">Name</label>
+            <input type="text" name="name" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Message</label>
+            <textarea name="message" rows="5" class="form-control" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Send Message</button>
+    </form>
+</section>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Tasks{% endblock %}
+{% block content %}
+<div class="flex-between mb-2">
+    <h1>Tasks</h1>
+    <a href="{% url 'tasks:add' %}" class="btn btn-primary">+ Add Task</a>
+</div>
+
+<form method="get" class="mb-2 flex-between" style="gap:10px;">
+    <input type="search" name="q" class="form-control" placeholder="Search tasks..." value="{{ request.GET.q }}">
+    <select name="status" class="form-select" style="max-width:200px;" onchange="this.form.submit()">
+        <option value="">All statuses</option>
+        {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr><th>Title</th><th>Subject</th><th>Date</th><th>Time</th><th>Est. Hours</th><th>Status</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+        {% for task in tasks %}
+            <tr>
+                <td><strong>{{ task.title }}</strong>{% if task.notes %}<div class="text-muted">{{ task.notes|truncatechars:40 }}</div>{% endif %}</td>
+                <td>{{ task.subject.name }}</td>
+                <td>{{ task.date }}</td>
+                <td>{{ task.start_time|time:"g:i A" }} - {{ task.end_time|time:"g:i A" }}</td>
+                <td>{{ task.estimated_hours }}h</td>
+                <td>
+                    <span class="pill {% if task.status == 'completed' %}pill-success{% elif task.status == 'in_progress' %}pill-warning{% else %}pill-info{% endif %}">
+                        {{ task.get_status_display }}
+                    </span>
+                </td>
+                <td>
+                    <a href="{% url 'tasks:edit' task.pk %}" class="btn btn-sm btn-outline">Edit</a>
+                    <a href="{% url 'tasks:delete' task.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="7" class="empty-state">No tasks yet. <a href="{% url 'tasks:add' %}">Add your first task</a>.</td></tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% include "partials/pagination.html" %}
+{% endblock %}

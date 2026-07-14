@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Goals{% endblock %}
+{% block content %}
+<div class="flex-between mb-2">
+    <h1>Goals</h1>
+    <a href="{% url 'goals:add' %}" class="btn btn-primary">+ Add Goal</a>
+</div>
+<div class="grid-2">
+{% for goal in goals %}
+    <div class="card">
+        <div class="flex-between">
+            <h3>{{ goal.title }}</h3>
+            {% if goal.is_completed %}<span class="pill pill-success">Completed</span>{% endif %}
+        </div>
+        {% if goal.target_date %}<p class="text-muted">Target: {{ goal.target_date }}</p>{% endif %}
+        <div class="progress"><div class="progress-bar" data-value="{{ goal.percentage }}"></div></div>
+        <p class="mt-2 text-muted">{{ goal.completed_units }} / {{ goal.total_units }} done ({{ goal.remaining_units }} remaining) — {{ goal.percentage }}%</p>
+        <a href="{% url 'goals:edit' goal.pk %}" class="btn btn-sm btn-outline">Edit</a>
+        <a href="{% url 'goals:delete' goal.pk %}" class="btn btn-sm btn-danger">Delete</a>
+    </div>
+{% empty %}
+    <p class="empty-state">No goals yet. <a href="{% url 'goals:add' %}">Set your first goal</a>.</p>
+{% endfor %}
+</div>
+{% include "partials/pagination.html" %}
+{% endblock %}

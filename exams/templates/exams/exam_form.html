@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Edit{% else %}Add{% endif %} Exam{% endblock %}
+{% block content %}
+<h1>{% if object %}Edit{% else %}Add{% endif %} Exam</h1>
+<div class="card auth-card" style="margin:0;">
+    <form method="post" data-validate novalidate>
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="form-group">
+                <label class="form-label">{{ field.label }}</label>
+                {{ field }}
+                {% if field.errors %}<div class="form-error">{{ field.errors|striptags }}</div>{% endif %}
+            </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary btn-block">Save Exam</button>
+    </form>
+</div>
+{% endblock %}

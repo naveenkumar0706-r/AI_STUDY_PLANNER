@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Today's AI Study Plan{% endblock %}
+{% block content %}
+<div class="flex-between mb-2">
+    <h1>🤖 Today's AI Study Plan</h1>
+    <div>
+        <a href="{% url 'planner:preferences' %}" class="btn btn-outline">⚙️ Preferences</a>
+        <a href="{% url 'planner:regenerate' %}" class="btn btn-primary">🔄 Regenerate Plan</a>
+    </div>
+</div>
+<p class="text-muted">{{ today|date:"l, F j, Y" }}</p>
+
+<div class="grid-2">
+    <div class="card">
+        <h3>Schedule</h3>
+        <div class="timeline mt-2">
+        {% for slot in slots %}
+            <div class="timeline-item {{ slot.slot_type }}">
+                <div class="timeline-time">{{ slot.start_time|time:"g:i A" }} - {{ slot.end_time|time:"g:i A" }}</div>
+                <div class="timeline-body">
+                    <strong>
+                        {% if slot.slot_type == 'break' %}☕ Break
+                        {% elif slot.slot_type == 'revision' %}🔁 {{ slot.subject.name }} (Revision)
+                        {% else %}📖 {{ slot.subject.name }}{% endif %}
+                    </strong>
+                    <span>{{ slot.reason }}</span>
+                </div>
+            </div>
+        {% empty %}
+            <p class="empty-state">Add subjects first, then your AI plan will appear here automatically.</p>
+        {% endfor %}
+        </div>
+    </div>
+
+    <div class="card">
+        <h3>Why this plan?</h3>
+        <p class="text-muted">The AI engine scores each subject using priority, difficulty, exam proximity, and your completion history, then allocates your available hours proportionally — highest-scoring subjects first, with breaks every {{ recommendations.study_tip|default:"90 minutes" }}.</p>
+
+        <h4 class="mt-2">💡 Study Tip</h4>
+        <div class="alert alert-info">{{ recommendations.study_tip }}</div>
+
+        <h4>✨ Daily Motivation</h4>
+        <div class="alert alert-success">"{{ recommendations.daily_quote }}"</div>
+
+        <h4>Recommended Daily Hours</h4>
+        <p class="stat-value">{{ recommendations.recommended_hours }}h</p>
+    </div>
+</div>
+{% endblock %}

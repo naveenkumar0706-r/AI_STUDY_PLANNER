@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — AI Study Planner{% endblock %}
+{% block content %}
+
+<div class="flex-between mb-2">
+    <h1>Welcome back, {{ user.first_name|default:user.username }} 👋</h1>
+    <a href="{% url 'planner:today' %}" class="btn btn-primary">🤖 View Today's AI Plan</a>
+</div>
+
+<div class="stat-grid">
+    <div class="card stat-card"><span class="stat-icon">📚</span><span class="stat-value">{{ total_subjects }}</span><span class="stat-label">Total Subjects</span></div>
+    <div class="card stat-card"><span class="stat-icon">✅</span><span class="stat-value">{{ completed_tasks }}</span><span class="stat-label">Completed Tasks</span></div>
+    <div class="card stat-card"><span class="stat-icon">⏳</span><span class="stat-value">{{ pending_tasks }}</span><span class="stat-label">Pending Tasks</span></div>
+    <div class="card stat-card"><span class="stat-icon">⏱️</span><span class="stat-value">{{ todays_study_hours }}h</span><span class="stat-label">Today's Study Hours</span></div>
+    <div class="card stat-card"><span class="stat-icon">📅</span><span class="stat-value">{{ weekly_progress_pct }}%</span><span class="stat-label">Weekly Progress</span></div>
+    <div class="card stat-card">
+        <span class="stat-icon">🎯</span>
+        <span class="stat-value">{{ completion_percentage }}%</span>
+        <span class="stat-label">Completion Percentage</span>
+        <div class="progress mt-2"><div class="progress-bar" data-value="{{ completion_percentage }}"></div></div>
+    </div>
+</div>
+
+<div class="grid-2">
+    <div class="card">
+        <h3>Study Hours (Last 7 Days)</h3>
+        <canvas id="studyHoursChart" height="180"></canvas>
+    </div>
+    <div class="card">
+        <h3>Weekly Performance</h3>
+        <canvas id="weeklyPerformanceChart" height="180"></canvas>
+    </div>
+</div>
+
+<div class="card mt-2">
+    <h3>Subject-wise Progress</h3>
+    {% if chart_subject_labels != "[]" %}
+    <canvas id="subjectProgressChart" height="100"></canvas>
+    {% else %}
+    <p class="text-muted">Add subjects and tasks to see progress here.</p>
+    {% endif %}
+</div>
+
+<div class="grid-2 mt-2">
+    <div class="card">
+        <h3>🤖 AI Recommendations</h3>
+        <p><strong>Recommended study hours today:</strong> {{ recommendations.recommended_hours }}h</p>
+        {% if recommendations.weak_subjects %}
+            <p class="mt-2"><strong>Weak subjects needing attention:</strong></p>
+            <ul>{% for s in recommendations.weak_subjects %}<li>{{ s.name }}</li>{% endfor %}</ul>
+        {% endif %}
+        {% if recommendations.high_priority_subjects %}
+            <p class="mt-2"><strong>High priority subjects:</strong></p>
+            <ul>{% for s in recommendations.high_priority_subjects %}<li>{{ s.name }}</li>{% endfor %}</ul>
+        {% endif %}
+        <div class="alert alert-info mt-2">💡 {{ recommendations.study_tip }}</div>
+        <div class="alert alert-success">✨ "{{ recommendations.daily_quote }}"</div>
+    </div>
+
+    <div class="card">
+        <h3>📝 Upcoming Exams</h3>
+        {% for exam in upcoming_exams %}
+            <div class="flex-between mt-2">
+                <div>
+                    <strong>{{ exam.exam_name }}</strong>
+                    <div class="text-muted">{{ exam.subject.name }} · {{ exam.exam_date }}</div>
+                </div>
+                <span class="pill {% if exam.days_remaining <= 3 %}pill-danger{% elif exam.days_remaining <= 7 %}pill-warning{% else %}pill-info{% endif %}">
+                    {{ exam.days_remaining }} days left
+                </span>
+            </div>
+        {% empty %}
+            <p class="text-muted">No upcoming exams. <a href="{% url 'exams:add' %}">Add one</a></p>
+        {% endfor %}
+
+        <h3 class="mt-2">🎯 Active Goals</h3>
+        {% for goal in active_goals %}
+            <div class="mt-2">
+                <div class="flex-between"><span>{{ goal.title }}</span><span class="text-muted">{{ goal.percentage }}%</span></div>
+                <div class="progress"><div class="progress-bar" data-value="{{ goal.percentage }}"></div></div>
+            </div>
+        {% empty %}
+            <p class="text-muted">No active goals. <a href="{% url 'goals:add' %}">Set one</a></p>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+const chartTextColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim() || '#1E1E2D';
+const gridColor = 'rgba(128,128,128,0.15)';
+
+new Chart(document.getElementById('studyHoursChart'), {
+    type: 'line',
+    data: {
+        labels: {{ chart_study_hours_labels|safe }},
+        datasets: [{
+            label: 'Hours Studied',
+            data: {{ chart_study_hours_data|safe }},
+            borderColor: '#6C63FF',
+            backgroundColor: 'rgba(108,99,255,0.15)',
+            fill: true, tension: 0.35, pointRadius: 4,
+        }]
+    },
+    options: {
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { color: chartTextColor }, grid: { color: gridColor } },
+            y: { ticks: { color: chartTextColor }, grid: { color: gridColor }, beginAtZero: true }
+        }
+    }
+});
+
+new Chart(document.getElementById('weeklyPerformanceChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ chart_study_hours_labels|safe }},
+        datasets: [
+            { label: 'Completed', data: {{ chart_weekly_completed|safe }}, backgroundColor: '#00C9A7' },
+            { label: 'Pending', data: {{ chart_weekly_pending|safe }}, backgroundColor: '#F5A623' },
+        ]
+    },
+    options: {
+        plugins: { legend: { labels: { color: chartTextColor } } },
+        scales: {
+            x: { ticks: { color: chartTextColor }, grid: { display: false } },
+            y: { ticks: { color: chartTextColor }, grid: { color: gridColor }, beginAtZero: true }
+        }
+    }
+});
+
+{% if chart_subject_labels != "[]" %}
+new Chart(document.getElementById('subjectProgressChart'), {
+    type: 'bar',
+    data: {
+        labels: {{ chart_subject_labels|safe }},
+        datasets: [{ label: 'Completion %', data: {{ chart_subject_progress|safe }}, backgroundColor: '#6C63FF', borderRadius: 6 }]
+    },
+    options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { color: chartTextColor }, grid: { color: gridColor }, beginAtZero: true, max: 100 },
+            y: { ticks: { color: chartTextColor }, grid: { display: false } }
+        }
+    }
+});
+{% endif %}
+</script>
+{% endblock %}

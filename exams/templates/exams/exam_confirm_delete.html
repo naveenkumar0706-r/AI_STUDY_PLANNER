@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Delete Exam{% endblock %}
+{% block content %}
+<div class="card auth-card">
+    <h2>Delete "{{ object.exam_name }}"?</h2>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger btn-block">Yes, Delete</button>
+        <a href="{% url 'exams:list' %}" class="btn btn-outline btn-block mt-2">Cancel</a>
+    </form>
+</div>
+{% endblock %}
